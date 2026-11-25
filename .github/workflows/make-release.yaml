@@ -73,8 +73,12 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure Docker authentication
+        env:
+          # Mitigate template injection: extract workflow input to environment variable
+          # instead of using ${{ inputs.repo_prefix }} directly in the shell script
+          REPO_PREFIX: ${{ inputs.repo_prefix }}
         run: |
-          REGISTRY_IMAGES=$(echo "${{ inputs.repo_prefix }}" | cut -d'/' -f1)
+          REGISTRY_IMAGES=$(echo "$REPO_PREFIX" | cut -d'/' -f1)
           gcloud auth configure-docker "$REGISTRY_IMAGES"
           gcloud auth configure-docker "us-docker.pkg.dev"
 
